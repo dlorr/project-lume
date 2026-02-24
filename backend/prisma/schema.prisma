@@ -1,0 +1,159 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketType {
+  TASK
+  BUG
+  STORY
+  EPIC
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  username       String   @unique
+  hashedPassword String   @map("hashed_password")
+  firstName      String   @map("first_name")
+  lastName       String   @map("last_name")
+  isActive       Boolean  @default(true) @map("is_active")
+  refreshToken   String?  @map("refresh_token")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // ── Relations ──
+  projectMembers  ProjectMember[] // Projects this user belongs to
+  assignedTickets Ticket[]        @relation("AssignedTickets") // Tickets assigned to this user
+  reportedTickets Ticket[]        @relation("ReportedTickets") // Tickets created by this user
+  comments        Comment[]       // Comments written by this user
+
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  key         String   @unique
+  isArchived  Boolean  @default(false) @map("is_archived")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // ── Relations ──
+  members     ProjectMember[]
+  board       Board?
+  tickets     Ticket[]
+
+  @@map("projects")
+}
+
+model ProjectMember {
+  id       String   @id @default(uuid())
+  role     Role     @default(MEMBER)
+  joinedAt DateTime @default(now()) @map("joined_at")
+  userId    String @map("user_id")
+  projectId String @map("project_id")
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@map("project_members")
+}
+
+model Board {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  projectId String   @unique @map("project_id")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // ── Relations ──
+  statuses  Status[]
+
+  @@map("boards")
+}
+
+model Status {
+  id   String @id @default(uuid())
+  name String
+  color String @default("#6B7280")
+  order Int
+  isDefault Boolean @default(false) @map("is_default")
+  boardId String @map("board_id")
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  // ── Relations ──
+  tickets Ticket[]
+
+  @@unique([boardId, order])
+  @@unique([boardId, name])
+  @@map("statuses")
+}
+
+model Ticket {
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  type        TicketType     @default(TASK)
+  priority    TicketPriority @default(MEDIUM)
+  dueDate     DateTime?      @map("due_date")
+  order Int
+  number Int @map("number")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  projectId  String  @map("project_id")
+  statusId   String  @map("status_id")
+  assigneeId String? @map("assignee_id")
+  reporterId String  @map("reporter_id")
+  project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status   Status   @relation(fields: [statusId], references: [id])
+
+  // Named relations needed because User has two relations to Ticket
+  assignee User?    @relation("AssignedTickets", fields: [assigneeId], references: [id])
+  reporter User     @relation("ReportedTickets", fields: [reporterId], references: [id])
+
+  // ── Relations ──
+  comments Comment[]
+
+  @@unique([projectId, number])
+  @@map("tickets")
+}
+
+model Comment {
+  id       String  @id @default(uuid())
+  body     String
+
+  isEdited Boolean @default(false) @map("is_edited")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  ticketId String @map("ticket_id")
+  authorId String @map("author_id")
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@map("comments")
+}
