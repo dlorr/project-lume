@@ -7,6 +7,11 @@ import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { ProjectsModule } from './modules/projects/project.module';
+import { BoardsModule } from './modules/boards/boards.module';
+import { StatusesModule } from './modules/statuses/statuses.module';
+import { TicketsModule } from './modules/tickets/tickets.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 /**
  * AppModule is the root module — the entry point of the dependency injection tree.
@@ -63,13 +68,11 @@ import { UsersModule } from './modules/users/users.module';
     PrismaModule,
     AuthModule,
     UsersModule,
-
-    // ─── Feature modules added in Phase 3 ───
-    // ProjectsModule,
-    // BoardsModule,
-    // TicketsModule,
-    // StatusesModule,
-    // CommentsModule,
+    ProjectsModule,
+    BoardsModule,
+    StatusesModule,
+    TicketsModule,
+    CommentsModule,
   ],
 })
 export class AppModule {}
