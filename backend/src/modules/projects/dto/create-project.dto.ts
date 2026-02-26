@@ -19,11 +19,6 @@ export class CreateProjectDto {
   @MaxLength(500)
   description?: string;
 
-  /**
-   * Project key — short uppercase identifier used to prefix ticket numbers.
-   * e.g. "MYP" → tickets become MYP-1, MYP-2, MYP-3
-   * Must be 2–6 uppercase letters only.
-   */
   @IsString()
   @IsNotEmpty()
   @Matches(/^[A-Z]{2,6}$/, {

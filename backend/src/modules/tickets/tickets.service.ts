@@ -18,26 +18,12 @@ import { Role } from 'src/generated/prisma/enums';
 export class TicketsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Create a new ticket in a project.
-   *
-   * We use a transaction because ticket creation involves:
-   *   1. Generating the next ticket number for the project (race condition risk)
-   *   2. Creating the ticket
-   *
-   * Without a transaction, two simultaneous creates could get the same number.
-   * With a transaction + DB-level unique constraint ([projectId, number]),
-   * one of them will fail and retry — guaranteed uniqueness.
-   */
   async create(projectId: string, userId: string, dto: CreateTicketDto) {
     await getProjectMember(this.prisma, projectId, userId);
 
-    // Validate the status belongs to this project
     await this.validateStatusInProject(dto.statusId, projectId);
 
     return this.prisma.$transaction(async (tx) => {
-      // Get the highest ticket number in this project and increment it
-      // This gives us scoped sequential IDs: MYP-1, MYP-2, MYP-3...
       const lastTicket = await tx.ticket.findFirst({
         where: { projectId },
         orderBy: { number: 'desc' },
@@ -46,7 +32,6 @@ export class TicketsService {
 
       const nextNumber = (lastTicket?.number ?? 0) + 1;
 
-      // Get current highest order in the target column to append at bottom
       const lastInColumn = await tx.ticket.findFirst({
         where: { statusId: dto.statusId },
         orderBy: { order: 'desc' },
@@ -92,9 +77,6 @@ export class TicketsService {
     });
   }
 
-  /**
-   * Get all tickets for a project with basic filtering support.
-   */
   async findAll(
     projectId: string,
     userId: string,
@@ -139,9 +121,6 @@ export class TicketsService {
     });
   }
 
-  /**
-   * Get a single ticket with full details including comments.
-   */
   async findOne(projectId: string, ticketId: string, userId: string) {
     await getProjectMember(this.prisma, projectId, userId);
 
@@ -186,10 +165,6 @@ export class TicketsService {
     return ticket;
   }
 
-  /**
-   * Update ticket fields.
-   * Any project member can update tickets.
-   */
   async update(
     projectId: string,
     ticketId: string,
@@ -224,16 +199,6 @@ export class TicketsService {
     });
   }
 
-  /**
-   * Move a ticket to a different column and/or position.
-   *
-   * This is the drag-and-drop handler. When a card is dragged:
-   *   1. We update the ticket's statusId (column) and order (position)
-   *   2. We shift other tickets in the target column to make room
-   *
-   * We use a transaction to ensure the reordering is atomic —
-   * no intermediate state where two tickets have the same order.
-   */
   async move(
     projectId: string,
     ticketId: string,
@@ -250,18 +215,15 @@ export class TicketsService {
 
       if (!ticket) throw new NotFoundException('Ticket not found');
 
-      // Shift tickets in the target column at and after the target order up by 1
-      // to make room for the moved ticket at the desired position
       await tx.ticket.updateMany({
         where: {
           statusId: dto.statusId,
           order: { gte: dto.order },
-          id: { not: ticketId }, // Don't shift the ticket we're moving
+          id: { not: ticketId },
         },
         data: { order: { increment: 1 } },
       });
 
-      // Place the ticket in its new home
       return tx.ticket.update({
         where: { id: ticketId },
         data: {
@@ -273,10 +235,6 @@ export class TicketsService {
     });
   }
 
-  /**
-   * Delete a ticket.
-   * Only OWNER, ADMIN, or the ticket's reporter can delete.
-   */
   async remove(projectId: string, ticketId: string, userId: string) {
     const member = await getProjectMember(this.prisma, projectId, userId);
 
@@ -302,15 +260,6 @@ export class TicketsService {
     return { message: 'Ticket deleted successfully' };
   }
 
-  // ─────────────────────────────────────────
-  // PRIVATE HELPERS
-  // ─────────────────────────────────────────
-
-  /**
-   * Validates that a status belongs to the given project's board.
-   * Prevents cross-project contamination — a user cannot assign a ticket
-   * to a status column from a different project.
-   */
   private async validateStatusInProject(statusId: string, projectId: string) {
     const board = await this.prisma.board.findUnique({ where: { projectId } });
     if (!board) throw new NotFoundException('Board not found');
