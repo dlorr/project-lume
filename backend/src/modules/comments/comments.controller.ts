@@ -19,7 +19,6 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  /** POST /api/v1/projects/:projectId/tickets/:ticketId/comments */
   @Post(':projectId/tickets/:ticketId/comments')
   create(
     @CurrentUser() user: { id: string },
@@ -30,7 +29,6 @@ export class CommentsController {
     return this.commentsService.create(projectId, ticketId, user.id, dto);
   }
 
-  /** PATCH /api/v1/projects/:projectId/tickets/:ticketId/comments/:commentId */
   @Patch(':projectId/tickets/:ticketId/comments/:commentId')
   update(
     @CurrentUser() user: { id: string },
@@ -48,7 +46,6 @@ export class CommentsController {
     );
   }
 
-  /** DELETE /api/v1/projects/:projectId/tickets/:ticketId/comments/:commentId */
   @Delete(':projectId/tickets/:ticketId/comments/:commentId')
   @HttpCode(HttpStatus.OK)
   remove(

@@ -20,7 +20,6 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 export class StatusesController {
   constructor(private readonly statusesService: StatusesService) {}
 
-  /** POST /api/v1/projects/:projectId/statuses */
   @Post(':projectId/statuses')
   create(
     @CurrentUser() user: { id: string },
@@ -30,7 +29,6 @@ export class StatusesController {
     return this.statusesService.create(projectId, user.id, dto);
   }
 
-  /** PATCH /api/v1/projects/:projectId/statuses/:statusId */
   @Patch(':projectId/statuses/:statusId')
   update(
     @CurrentUser() user: { id: string },
@@ -41,7 +39,6 @@ export class StatusesController {
     return this.statusesService.update(projectId, statusId, user.id, dto);
   }
 
-  /** DELETE /api/v1/projects/:projectId/statuses/:statusId */
   @Delete(':projectId/statuses/:statusId')
   @HttpCode(HttpStatus.OK)
   remove(

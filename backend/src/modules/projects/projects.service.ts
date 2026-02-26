@@ -15,11 +15,6 @@ import {
 import slugify from 'slugify';
 import { Role } from 'src/generated/prisma/enums';
 
-/**
- * Default Kanban statuses created with every new project.
- * These give users an immediate working board without manual setup.
- * Order values determine left-to-right column position on the board.
- */
 const DEFAULT_STATUSES = [
   { name: 'To Do', color: '#6B7280', order: 0, isDefault: true },
   { name: 'In Progress', color: '#3B82F6', order: 1, isDefault: false },
@@ -31,21 +26,7 @@ const DEFAULT_STATUSES = [
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Create a new project.
-   *
-   * We use a Prisma transaction here because creating a project involves
-   * multiple DB writes that must all succeed or all fail together:
-   *   1. Create the project
-   *   2. Add the creator as OWNER
-   *   3. Create the default board
-   *   4. Create default statuses on the board
-   *
-   * If step 3 fails, we don't want a project with no board sitting in the DB.
-   * Transactions give us atomicity — all or nothing.
-   */
   async create(userId: string, dto: CreateProjectDto) {
-    // Check if project key is already taken globally
     const existingKey = await this.prisma.project.findUnique({
       where: { key: dto.key },
     });
@@ -54,13 +35,10 @@ export class ProjectsService {
       throw new ConflictException(`Project key "${dto.key}" is already in use`);
     }
 
-    // Generate a URL-friendly slug from the project name
-    // e.g. "My Awesome Project" → "my-awesome-project"
     const baseSlug = slugify(dto.name, { lower: true, strict: true });
     const slug = await this.generateUniqueSlug(baseSlug);
 
     return this.prisma.$transaction(async (tx) => {
-      // Step 1: Create the project
       const project = await tx.project.create({
         data: {
           name: dto.name,
@@ -70,7 +48,6 @@ export class ProjectsService {
         },
       });
 
-      // Step 2: Add creator as OWNER
       await tx.projectMember.create({
         data: {
           userId,
@@ -79,7 +56,6 @@ export class ProjectsService {
         },
       });
 
-      // Step 3 + 4: Create board with default statuses in one nested write
       await tx.board.create({
         data: {
           name: `${project.name} Board`,
@@ -94,10 +70,6 @@ export class ProjectsService {
     });
   }
 
-  /**
-   * Get all projects the current user is a member of.
-   * Includes the user's role in each project.
-   */
   async findAllForUser(userId: string) {
     const memberships = await this.prisma.projectMember.findMany({
       where: { userId },
@@ -113,7 +85,6 @@ export class ProjectsService {
       orderBy: { joinedAt: 'desc' },
     });
 
-    // Reshape so the response is project-centric, not membership-centric
     return memberships.map(({ role, joinedAt, project }) => ({
       ...project,
       myRole: role,
@@ -121,12 +92,7 @@ export class ProjectsService {
     }));
   }
 
-  /**
-   * Get a single project by ID.
-   * User must be a member to view it.
-   */
   async findOne(projectId: string, userId: string) {
-    // This confirms both project existence and user membership
     await getProjectMember(this.prisma, projectId, userId);
 
     return this.prisma.project.findUnique({
@@ -159,10 +125,6 @@ export class ProjectsService {
     });
   }
 
-  /**
-   * Update project name or description.
-   * Requires ADMIN or OWNER role.
-   */
   async update(projectId: string, userId: string, dto: UpdateProjectDto) {
     const member = await getProjectMember(this.prisma, projectId, userId);
     assertRole(member.role, Role.ADMIN);
@@ -173,11 +135,6 @@ export class ProjectsService {
     });
   }
 
-  /**
-   * Soft-delete: archive a project instead of deleting it.
-   * Archived projects are hidden from listings but data is preserved.
-   * Only OWNER can archive — this is a destructive enough action.
-   */
   async archive(projectId: string, userId: string) {
     const member = await getProjectMember(this.prisma, projectId, userId);
     assertRole(
@@ -192,10 +149,6 @@ export class ProjectsService {
     });
   }
 
-  /**
-   * Invite a user to the project by their email address.
-   * Requires ADMIN or OWNER role.
-   */
   async inviteMember(
     projectId: string,
     inviterId: string,
@@ -204,7 +157,6 @@ export class ProjectsService {
     const inviter = await getProjectMember(this.prisma, projectId, inviterId);
     assertRole(inviter.role, Role.ADMIN);
 
-    // Find the user to invite
     const userToInvite = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -213,7 +165,6 @@ export class ProjectsService {
       throw new NotFoundException('No user found with that email address');
     }
 
-    // Check if already a member
     const existing = await this.prisma.projectMember.findUnique({
       where: {
         userId_projectId: {
@@ -247,11 +198,6 @@ export class ProjectsService {
     });
   }
 
-  /**
-   * Remove a member from the project.
-   * OWNER can remove anyone. ADMIN can remove MEMBERs only.
-   * Nobody can remove the OWNER (ownership transfer is a future feature).
-   */
   async removeMember(
     projectId: string,
     requesterId: string,
@@ -274,12 +220,10 @@ export class ProjectsService {
       throw new NotFoundException('Member not found in this project');
     }
 
-    // OWNER cannot be removed
     if (target.role === Role.OWNER) {
       throw new ForbiddenException('The project owner cannot be removed');
     }
 
-    // ADMIN cannot remove other ADMINs — only OWNER can
     if (target.role === Role.ADMIN && requester.role !== Role.OWNER) {
       throw new ForbiddenException('Only the owner can remove an admin');
     }
@@ -293,14 +237,6 @@ export class ProjectsService {
     return { message: 'Member removed successfully' };
   }
 
-  // ─────────────────────────────────────────
-  // PRIVATE HELPERS
-  // ─────────────────────────────────────────
-
-  /**
-   * Generate a unique slug by appending a counter if the base slug is taken.
-   * e.g. "my-project" → "my-project-2" → "my-project-3"
-   */
   private async generateUniqueSlug(baseSlug: string): Promise<string> {
     let slug = baseSlug;
     let counter = 1;

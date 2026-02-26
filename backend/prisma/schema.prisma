@@ -41,10 +41,10 @@ model User {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   // ── Relations ──
-  projectMembers  ProjectMember[] // Projects this user belongs to
-  assignedTickets Ticket[]        @relation("AssignedTickets") // Tickets assigned to this user
-  reportedTickets Ticket[]        @relation("ReportedTickets") // Tickets created by this user
-  comments        Comment[]       // Comments written by this user
+  projectMembers  ProjectMember[]
+  assignedTickets Ticket[]        @relation("AssignedTickets")
+  reportedTickets Ticket[]        @relation("ReportedTickets")
+  comments        Comment[]
 
   @@map("users")
 }
