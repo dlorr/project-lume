@@ -17,10 +17,6 @@ import { Role } from 'src/generated/prisma/enums';
 export class StatusesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Create a new status (column) on the project board.
-   * Requires ADMIN or OWNER role.
-   */
   async create(projectId: string, userId: string, dto: CreateStatusDto) {
     const member = await getProjectMember(this.prisma, projectId, userId);
     assertRole(member.role, Role.ADMIN);
@@ -28,7 +24,6 @@ export class StatusesService {
     const board = await this.prisma.board.findUnique({ where: { projectId } });
     if (!board) throw new NotFoundException('Board not found');
 
-    // Ensure no duplicate names on the same board
     const existing = await this.prisma.status.findUnique({
       where: { boardId_name: { boardId: board.id, name: dto.name } },
     });
@@ -39,7 +34,6 @@ export class StatusesService {
       );
     }
 
-    // If this new status is marked as default, unset any existing default
     if (dto.isDefault) {
       await this.prisma.status.updateMany({
         where: { boardId: board.id, isDefault: true },
@@ -58,10 +52,6 @@ export class StatusesService {
     });
   }
 
-  /**
-   * Update a status — rename, recolor, reorder, or change default.
-   * Requires ADMIN or OWNER role.
-   */
   async update(
     projectId: string,
     statusId: string,
@@ -73,7 +63,6 @@ export class StatusesService {
 
     const status = await this.findStatusInProject(projectId, statusId);
 
-    // If setting this as default, unset others first
     if (dto.isDefault) {
       await this.prisma.status.updateMany({
         where: { boardId: status.boardId, isDefault: true },
@@ -87,11 +76,6 @@ export class StatusesService {
     });
   }
 
-  /**
-   * Delete a status column.
-   * Cannot delete if tickets still live in this column —
-   * user must move them first. This prevents accidental data loss.
-   */
   async remove(projectId: string, statusId: string, userId: string) {
     const member = await getProjectMember(this.prisma, projectId, userId);
     assertRole(member.role, Role.ADMIN);
@@ -113,14 +97,6 @@ export class StatusesService {
     return { message: 'Status deleted successfully' };
   }
 
-  // ─────────────────────────────────────────
-  // PRIVATE HELPERS
-  // ─────────────────────────────────────────
-
-  /**
-   * Confirms a status belongs to the given project's board.
-   * Prevents users from manipulating statuses across projects.
-   */
   private async findStatusInProject(projectId: string, statusId: string) {
     const board = await this.prisma.board.findUnique({ where: { projectId } });
     if (!board) throw new NotFoundException('Board not found');

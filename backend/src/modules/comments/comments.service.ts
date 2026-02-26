@@ -20,7 +20,6 @@ export class CommentsService {
   ) {
     await getProjectMember(this.prisma, projectId, userId);
 
-    // Confirm ticket exists in this project
     const ticket = await this.prisma.ticket.findFirst({
       where: { id: ticketId, projectId },
     });
@@ -46,11 +45,6 @@ export class CommentsService {
     });
   }
 
-  /**
-   * Edit a comment.
-   * Only the comment author can edit — no one else, regardless of role.
-   * Also marks isEdited: true so the UI can show "(edited)".
-   */
   async update(
     projectId: string,
     ticketId: string,
@@ -86,11 +80,6 @@ export class CommentsService {
     });
   }
 
-  /**
-   * Delete a comment.
-   * Author can always delete their own comment.
-   * OWNER and ADMIN can delete any comment (moderation).
-   */
   async remove(
     projectId: string,
     ticketId: string,

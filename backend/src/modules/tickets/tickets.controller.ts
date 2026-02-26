@@ -23,7 +23,6 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
-  /** POST /api/v1/projects/:projectId/tickets */
   @Post(':projectId/tickets')
   create(
     @CurrentUser() user: { id: string },
@@ -33,10 +32,6 @@ export class TicketsController {
     return this.ticketsService.create(projectId, user.id, dto);
   }
 
-  /**
-   * GET /api/v1/projects/:projectId/tickets
-   * Supports query filters: ?statusId=&assigneeId=&priority=&type=
-   */
   @Get(':projectId/tickets')
   findAll(
     @CurrentUser() user: { id: string },
@@ -54,7 +49,6 @@ export class TicketsController {
     });
   }
 
-  /** GET /api/v1/projects/:projectId/tickets/:ticketId */
   @Get(':projectId/tickets/:ticketId')
   findOne(
     @CurrentUser() user: { id: string },
@@ -64,7 +58,6 @@ export class TicketsController {
     return this.ticketsService.findOne(projectId, ticketId, user.id);
   }
 
-  /** PATCH /api/v1/projects/:projectId/tickets/:ticketId */
   @Patch(':projectId/tickets/:ticketId')
   update(
     @CurrentUser() user: { id: string },
@@ -75,7 +68,6 @@ export class TicketsController {
     return this.ticketsService.update(projectId, ticketId, user.id, dto);
   }
 
-  /** PATCH /api/v1/projects/:projectId/tickets/:ticketId/move */
   @Patch(':projectId/tickets/:ticketId/move')
   move(
     @CurrentUser() user: { id: string },
@@ -86,7 +78,6 @@ export class TicketsController {
     return this.ticketsService.move(projectId, ticketId, user.id, dto);
   }
 
-  /** DELETE /api/v1/projects/:projectId/tickets/:ticketId */
   @Delete(':projectId/tickets/:ticketId')
   @HttpCode(HttpStatus.OK)
   remove(

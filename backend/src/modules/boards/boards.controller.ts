@@ -8,7 +8,6 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
-  /** GET /api/v1/projects/:projectId/board */
   @Get(':projectId/board')
   getBoard(
     @CurrentUser() user: { id: string },
