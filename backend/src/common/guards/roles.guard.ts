@@ -9,6 +9,24 @@ import { Role } from 'src/generated/prisma/enums';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
 /**
+ * RolesGuard — reserved for FUTURE system-level role checks.
+ *
+ * NOT currently used in this application.
+ *
+ * Our RBAC is fully project-scoped — meaning a user's role (OWNER/ADMIN/MEMBER)
+ * only exists within the context of a specific project, stored in ProjectMember.
+ * This project-scoped check is handled by project-access.helper.ts instead.
+ *
+ * This guard would be useful if we add system-wide roles in the future,
+ * for example a global "SUPER_ADMIN" role for a platform admin dashboard.
+ *
+ * Usage (when needed):
+ *   @UseGuards(JwtAuthGuard, RolesGuard)
+ *   @Roles('SUPER_ADMIN')
+ *   @Get('admin/dashboard')
+ *   getAdminDashboard() {}
+ */
+/**
  * RolesGuard enforces Role-Based Access Control (RBAC).
  *
  * Important: RolesGuard must ALWAYS run AFTER JwtAuthGuard,
