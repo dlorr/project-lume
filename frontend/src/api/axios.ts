@@ -1,4 +1,4 @@
-import axios, { type AxiosError } from "axios";
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import type { ApiError } from "@/types/common.types";
 
 /**
@@ -13,10 +13,6 @@ import type { ApiError } from "@/types/common.types";
  */
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-
-  // withCredentials: true is CRITICAL for httpOnly cookies.
-  // Without this, the browser won't send the access_token or
-  // refresh_token cookies with cross-origin requests.
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -24,20 +20,72 @@ const apiClient = axios.create({
 });
 
 /**
- * Response interceptor — runs on every response before it reaches calling code.
+ * Token refresh interceptor.
  *
- * Success path: pass through unchanged.
- * Error path: normalize the error so all callers get the same shape.
+ * Flow:
+ *   1. Any request returns 401
+ *   2. Interceptor catches it
+ *   3. If not already retrying → call /auth/refresh
+ *   4. If refresh succeeds → retry the original request
+ *   5. If refresh fails → clear local auth state → redirect to login
  *
- * Phase 2 will add: 401 detection → token refresh → request retry.
- * We scaffold that logic here with a TODO so the interceptor structure
- * is already in place when we need it.
+ * _retry flag prevents infinite loops:
+ *   Without it, the /auth/refresh call itself returning 401
+ *   would trigger another refresh attempt → infinite loop.
+ *
+ * Why not use a queue for concurrent requests?
+ *   For an MVP with short-lived access tokens (15min), the chance
+ *   of multiple simultaneous requests all hitting 401 at the same
+ *   moment is very low. A queue adds significant complexity.
+ *   We can add it later if needed.
  */
+
+// Extend AxiosRequestConfig to add our retry flag
+interface RetryableRequest extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiError>) => {
-    // TODO: Phase 2 — add token refresh logic here
-    // if (error.response?.status === 401) { ... }
+    const originalRequest = error.config as RetryableRequest;
+
+    const is401 = error.response?.status === 401;
+    const isNotRetry = !originalRequest._retry;
+    const isNotRefreshEndpoint =
+      !originalRequest.url?.includes("/auth/refresh");
+    const isNotLoginEndpoint = !originalRequest.url?.includes("/auth/login");
+
+    if (is401 && isNotRetry && isNotRefreshEndpoint && isNotLoginEndpoint) {
+      originalRequest._retry = true;
+
+      try {
+        // Attempt to get new tokens using the refresh cookie
+        await apiClient.post("/auth/refresh");
+
+        // Refresh succeeded — retry the original request
+        // New access_token cookie is now set by the browser automatically
+        return apiClient(originalRequest);
+      } catch {
+        // Refresh failed — session is dead
+        // Clear local state and redirect to login
+        // We import the store lazily here to avoid circular dependency
+        // (axios.ts → store → axios.ts)
+        const { useAuthStore } = await import("@/stores/auth.store");
+        const { getActivePinia } = await import("pinia");
+
+        const pinia = getActivePinia();
+        if (pinia) {
+          const authStore = useAuthStore(pinia);
+          authStore.clearUser();
+        }
+
+        // Redirect to login — don't use router to avoid circular dep
+        // window.location clears all in-memory state cleanly
+        window.location.href = "/auth/login";
+        return Promise.reject(error);
+      }
+    }
     return Promise.reject(error);
   },
 );
