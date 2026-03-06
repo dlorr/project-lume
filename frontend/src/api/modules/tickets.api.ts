@@ -3,6 +3,7 @@ import type {
   Ticket,
   CreateTicketPayload,
   MoveTicketPayload,
+  TicketDetail,
 } from "@/types/ticket.types";
 
 export const ticketsApi = {
@@ -12,7 +13,7 @@ export const ticketsApi = {
     }),
 
   getOne: (projectId: string, ticketId: string) =>
-    apiClient.get<Ticket>(`/projects/${projectId}/tickets/${ticketId}`),
+    apiClient.get<TicketDetail>(`/projects/${projectId}/tickets/${ticketId}`),
 
   create: (projectId: string, payload: CreateTicketPayload) =>
     apiClient.post<Ticket>(`/projects/${projectId}/tickets`, payload),

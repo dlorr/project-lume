@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useQueryClient } from "@tanstack/vue-query";
 import { useAuthStore } from "@/stores/auth.store";
 import { authApi } from "@/api/modules/auth.api";
 import type { LoginPayload, RegisterPayload } from "@/types/auth.types";
@@ -21,6 +22,7 @@ import type { ApiError } from "@/types/common.types";
 export function useAuth() {
   const authStore = useAuthStore();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Local loading + error state — scoped to this composable instance
   // so LoginPage and RegisterPage each have their own independent state
@@ -80,6 +82,7 @@ export function useAuth() {
       await authApi.logout();
     } finally {
       authStore.clearUser();
+      queryClient.clear();
       await router.push({ name: "login" });
     }
   }

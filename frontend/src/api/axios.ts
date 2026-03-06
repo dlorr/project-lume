@@ -66,22 +66,8 @@ apiClient.interceptors.response.use(
         // Refresh succeeded — retry the original request
         // New access_token cookie is now set by the browser automatically
         return apiClient(originalRequest);
-      } catch {
-        // Refresh failed — session is dead
-        // Clear local state and redirect to login
-        // We import the store lazily here to avoid circular dependency
-        // (axios.ts → store → axios.ts)
-        const { useAuthStore } = await import("@/stores/auth.store");
-        const { getActivePinia } = await import("pinia");
-
-        const pinia = getActivePinia();
-        if (pinia) {
-          const authStore = useAuthStore(pinia);
-          authStore.clearUser();
-        }
-
-        // Redirect to login — don't use router to avoid circular dep
-        // window.location clears all in-memory state cleanly
+      } catch (error) {
+        localStorage.removeItem("auth_user");
         window.location.href = "/auth/login";
         return Promise.reject(error);
       }

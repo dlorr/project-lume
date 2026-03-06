@@ -1,4 +1,5 @@
 import type { User } from "./auth.types";
+import type { Status } from "./status.types";
 
 export type Role = "OWNER" | "ADMIN" | "MEMBER";
 
@@ -27,6 +28,16 @@ export interface ProjectMember {
   role: Role;
   joinedAt: string;
   user: Pick<User, "id" | "email" | "username" | "firstName" | "lastName">;
+}
+
+export interface ProjectDetail extends Project {
+  members: ProjectMember[];
+  board: {
+    id: string;
+    name: string;
+    projectId: string;
+    statuses: Status[];
+  };
 }
 
 export interface CreateProjectPayload {

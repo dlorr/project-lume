@@ -4,13 +4,14 @@ import type {
   ProjectWithMeta,
   CreateProjectPayload,
   ProjectMember,
+  ProjectDetail,
 } from "@/types/project.types";
 
 export const projectsApi = {
   getAll: () => apiClient.get<ProjectWithMeta[]>("/projects"),
 
   getOne: (projectId: string) =>
-    apiClient.get<Project>(`/projects/${projectId}`),
+    apiClient.get<ProjectDetail>(`/projects/${projectId}`),
 
   create: (payload: CreateProjectPayload) =>
     apiClient.post<Project>("/projects", payload),
