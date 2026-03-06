@@ -1,7 +1,10 @@
 import type { User } from "./auth.types";
+import type { Comment } from "./comment.types";
+import type { Status } from "./status.types";
 
 export type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 export type TicketType = "TASK" | "BUG" | "STORY" | "EPIC";
+type TicketUser = Pick<User, "id" | "username" | "firstName" | "lastName">;
 
 export interface Ticket {
   id: string;
@@ -14,11 +17,18 @@ export interface Ticket {
   dueDate: string | null;
   projectId: string;
   statusId: string;
+  assigneeId: string | null;
+  reporterId: string;
   createdAt: string;
   updatedAt: string;
-  assignee: Pick<User, "id" | "username" | "firstName" | "lastName"> | null;
-  reporter: Pick<User, "id" | "username" | "firstName" | "lastName">;
+  status: Status;
+  assignee: TicketUser | null;
+  reporter: TicketUser;
   _count?: { comments: number };
+}
+
+export interface TicketDetail extends Ticket {
+  comments: Comment[];
 }
 
 export interface CreateTicketPayload {
