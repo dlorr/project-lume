@@ -33,12 +33,12 @@ export interface TicketDetail extends Ticket {
 
 export interface CreateTicketPayload {
   title: string;
-  description?: string;
+  description?: string | null;
   type?: TicketType;
   priority?: TicketPriority;
   statusId: string;
-  assigneeId?: string;
-  dueDate?: string;
+  assigneeId?: string | null;
+  dueDate?: string | null;
 }
 
 export interface MoveTicketPayload {

@@ -85,7 +85,7 @@ const priorityOptions: { value: TicketPriority; label: string }[] = [
         <label class="block text-xs font-medium text-muted-foreground mb-0.5">
           Description
           <span class="text-muted-foreground/60 font-normal ml-1"
-            >optional</span
+            >(optional)</span
           >
         </label>
         <textarea
@@ -142,7 +142,7 @@ const priorityOptions: { value: TicketPriority; label: string }[] = [
         <label class="block text-xs font-medium text-muted-foreground mb-0.5">
           Assignee
           <span class="text-muted-foreground/60 font-normal ml-1"
-            >optional</span
+            >(optional)</span
           >
         </label>
         <select

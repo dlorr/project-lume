@@ -21,7 +21,10 @@ export const ticketsApi = {
   update: (
     projectId: string,
     ticketId: string,
-    payload: Partial<CreateTicketPayload>,
+    payload: Partial<CreateTicketPayload> & {
+      assigneeId?: string | null;
+      description?: string | null;
+    },
   ) =>
     apiClient.patch<Ticket>(
       `/projects/${projectId}/tickets/${ticketId}`,

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { MessageSquare, User } from "lucide-vue-next";
 import type { Ticket } from "@/types/ticket.types";
 import { priorityConfig, typeConfig, getInitials } from "@/utils/ticket.utils";
@@ -11,14 +12,14 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits<{ click: [ticket: Ticket] }>();
 
-const priority = priorityConfig[props.ticket.priority];
-const type = typeConfig[props.ticket.type];
+const priority = computed(() => priorityConfig[props.ticket.priority]);
+const type = computed(() => typeConfig[props.ticket.type]);
 </script>
 
 <template>
   <div
     class="card p-3 flex flex-col gap-2.5 cursor-pointer hover:border-primary/40 hover:shadow-sm transition-all duration-150 active:opacity-80 select-none"
-    @click="emit('click', ticket)"
+    @click.stop="emit('click', ticket)"
   >
     <!-- Type + Priority row -->
     <div class="flex items-center justify-between gap-2">
