@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsString,
   IsOptional,
@@ -16,6 +17,7 @@ export class UpdateTicketDto {
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value ?? null)
   description?: string;
 
   @IsEnum(TicketType)
@@ -28,6 +30,7 @@ export class UpdateTicketDto {
 
   @IsUUID()
   @IsOptional()
+  @Transform(({ value }) => value ?? null)
   assigneeId?: string;
 
   @IsDateString()

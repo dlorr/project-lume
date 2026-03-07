@@ -5,7 +5,6 @@ import type { Ticket } from "@/types/ticket.types";
 import KanbanColumn from "./KanbanColumn.vue";
 import CreateTicketModal from "./CreateTicketModal.vue";
 import TicketDetailModal from "./TicketDetailModal.vue";
-import { useTickets } from "../composables/useTickets";
 
 interface Props {
   board: Board;
@@ -15,9 +14,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { moveTicket } = useTickets(props.projectId);
-
-// Modal state
 const createModal = ref<{ open: boolean; statusId: string }>({
   open: false,
   statusId: "",
@@ -31,42 +27,37 @@ function openCreateModal(statusId: string) {
 function closeCreateModal() {
   createModal.value = { open: false, statusId: "" };
 }
-
-async function handleTicketMoved(payload: {
-  ticketId: string;
-  statusId: string;
-  order: number;
-}) {
-  await moveTicket(payload);
-}
 </script>
 
 <template>
-  <div class="flex gap-4 overflow-x-auto pb-4 h-full">
-    <KanbanColumn
-      v-for="status in board.statuses"
-      :key="status.id"
-      :status="status"
+  <div class="flex flex-col h-full">
+    <div class="flex gap-4 overflow-x-auto pb-4 h-full">
+      <KanbanColumn
+        v-for="status in board.statuses"
+        :key="status.id"
+        :status="status"
+        :project-key="projectKey"
+        @ticket-click="selectedTicket = $event"
+        @add-ticket="openCreateModal"
+      />
+    </div>
+
+    <!-- Create ticket modal -->
+    <CreateTicketModal
+      v-if="createModal.open"
+      :project-id="projectId"
+      :status-id="createModal.statusId"
+      @close="closeCreateModal"
+    />
+
+    <!-- Ticket detail modal -->
+    <TicketDetailModal
+      v-if="selectedTicket"
+      :project-id="projectId"
+      :ticket="selectedTicket"
       :project-key="projectKey"
-      @ticket-click="selectedTicket = $event"
-      @add-ticket="openCreateModal"
-      @ticket-moved="handleTicketMoved"
+      :board="board"
+      @close="selectedTicket = null"
     />
   </div>
-
-  <!-- Create ticket modal -->
-  <CreateTicketModal
-    v-if="createModal.open"
-    :project-id="projectId"
-    :status-id="createModal.statusId"
-    @close="closeCreateModal"
-  />
-
-  <!-- Ticket detail modal -->
-  <TicketDetailModal
-    v-if="selectedTicket"
-    :project-id="projectId"
-    :ticket="selectedTicket"
-    @close="selectedTicket = null"
-  />
 </template>
