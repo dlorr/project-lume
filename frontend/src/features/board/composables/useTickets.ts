@@ -5,8 +5,10 @@ import type {
   CreateTicketPayload,
   MoveTicketPayload,
 } from "@/types/ticket.types";
+import { useToast } from "@/composables/useToast";
 
 export function useTickets(projectId: string) {
+  const toast = useToast();
   const queryClient = useQueryClient();
   const boardKey = queryKeys.board.detail(projectId);
 
@@ -18,7 +20,9 @@ export function useTickets(projectId: string) {
     onSuccess: () => {
       // Refetch board so new ticket appears in correct column
       queryClient.invalidateQueries({ queryKey: boardKey });
+      toast.success("Ticket created");
     },
+    onError: () => toast.error("Failed to create ticket"),
   });
 
   // ── Move ticket ──
@@ -36,7 +40,9 @@ export function useTickets(projectId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tickets.detail(projectId, variables.ticketId),
       });
+      toast.success("Ticket moved");
     },
+    onError: () => toast.error("Failed to move ticket"),
   });
 
   // ── Update ticket ──
@@ -57,7 +63,9 @@ export function useTickets(projectId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tickets.detail(projectId, variables.ticketId),
       });
+      toast.success("Ticket updated");
     },
+    onError: () => toast.error("Failed to update ticket"),
   });
 
   // ── Delete ticket ──

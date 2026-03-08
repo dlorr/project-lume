@@ -49,13 +49,22 @@ const router = createRouter({
           path: "projects",
           name: "projects",
           component: () => import("@/features/projects/pages/ProjectsPage.vue"),
-          meta: { requiresAuth: true },
         },
         {
           path: "projects/:projectId/board",
           name: "board",
           component: () => import("@/features/board/pages/BoardPage.vue"),
-          meta: { requiresAuth: true },
+        },
+        {
+          path: "projects/:projectId/settings",
+          name: "project-settings",
+          component: () =>
+            import("@/features/projects/pages/ProjectSettingsPage.vue"),
+        },
+        {
+          path: "projects/:projectId/members",
+          name: "project-members",
+          component: () => import("@/features/members/pages/MembersPage.vue"),
         },
       ],
     },
@@ -63,7 +72,8 @@ const router = createRouter({
     // Catch-all — redirect to projects
     {
       path: "/:pathMatch(.*)*",
-      redirect: "/projects",
+      name: "not-found",
+      component: () => import("@/pages/NotFoundPage.vue"),
     },
   ],
 });

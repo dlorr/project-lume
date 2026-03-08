@@ -5,8 +5,9 @@ import { ArrowLeft } from "lucide-vue-next";
 import { useBoard } from "../composables/useBoard";
 import { useProjects } from "@/features/projects/composables/useProjects";
 import KanbanBoard from "../components/KanbanBoard.vue";
-import AppSpinner from "@/components/ui/AppSpinner.vue";
 import AppButton from "@/components/ui/AppButton.vue";
+import SkeletonBoard from "@/components/feedback/SkeletonBoard.vue";
+import { Settings, Users } from "lucide-vue-next";
 
 const route = useRoute();
 const router = useRouter();
@@ -24,31 +25,51 @@ const project = computed(() => projects.value?.find((p) => p.id === projectId));
 <template>
   <div class="flex flex-col h-full">
     <!-- Page header -->
-    <div class="flex items-center gap-3 mb-6 shrink-0">
-      <AppButton
-        variant="ghost"
-        size="icon"
-        @click="router.push({ name: 'projects' })"
-      >
-        <ArrowLeft class="w-4 h-4" />
-      </AppButton>
+    <div class="flex items-center justify-between mb-6 shrink-0">
+      <div class="flex items-center gap-3">
+        <AppButton
+          variant="ghost"
+          size="icon"
+          @click="router.push({ name: 'projects' })"
+        >
+          <ArrowLeft class="w-4 h-4" />
+        </AppButton>
+        <div>
+          <h1 class="page-title">{{ project?.name ?? "Board" }}</h1>
+          <p class="page-subtitle">
+            {{
+              board?.statuses.reduce((acc, s) => acc + s.tickets.length, 0) ?? 0
+            }}
+            tickets
+          </p>
+        </div>
+      </div>
 
-      <div>
-        <h1 class="page-title">{{ project?.name ?? "Board" }}</h1>
-        <p class="page-subtitle">
-          {{
-            board?.statuses.reduce((acc, s) => acc + s.tickets.length, 0) ?? 0
-          }}
-          tickets across
-          {{ board?.statuses.length ?? 0 }} columns
-        </p>
+      <!-- Settings + Members links -->
+      <div class="flex items-center gap-2">
+        <AppButton
+          variant="outline"
+          @click="
+            router.push({ name: 'project-members', params: { projectId } })
+          "
+        >
+          <Users class="w-4 h-4" />
+          Members
+        </AppButton>
+        <AppButton
+          variant="ghost"
+          size="icon"
+          @click="
+            router.push({ name: 'project-settings', params: { projectId } })
+          "
+        >
+          <Settings class="w-4 h-4" />
+        </AppButton>
       </div>
     </div>
 
     <!-- Loading -->
-    <div v-if="isLoading" class="flex items-center justify-center flex-1">
-      <AppSpinner size="lg" />
-    </div>
+    <SkeletonBoard v-if="isLoading" />
 
     <!-- Error -->
     <div v-else-if="isError" class="card p-6 text-center">

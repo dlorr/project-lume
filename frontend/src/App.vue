@@ -1,8 +1,13 @@
 <script setup lang="ts">
-// App.vue is intentionally minimal — just the router outlet.
-// All layout logic lives in AppLayout.vue and AuthLayout.vue.
+import { onMounted } from "vue";
+import { useUIStore } from "@/stores/ui.store";
+import AppToastContainer from "@/components/ui/AppToastContainer.vue";
+
+const uiStore = useUIStore();
+onMounted(() => uiStore.initTheme());
 </script>
 
 <template>
   <router-view />
+  <AppToastContainer />
 </template>

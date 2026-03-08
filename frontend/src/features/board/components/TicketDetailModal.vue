@@ -42,7 +42,7 @@ const { addComment, isAdding, editComment, removeComment } = useComments(
   props.projectId,
   props.ticket.id,
 );
-const { members } = useMembers(props.projectId);
+const { projectDetail } = useMembers(props.projectId);
 
 type EditableField =
   | "title"
@@ -458,7 +458,7 @@ const priorityOptions: { value: TicketPriority; label: string }[] = [
               >
                 <option value="">Unassigned</option>
                 <option
-                  v-for="member in members"
+                  v-for="member in projectDetail?.members"
                   :key="member.user.id"
                   :value="member.user.id"
                 >
