@@ -5,8 +5,8 @@ import { useProjects } from "../composables/useProjects";
 import ProjectCard from "../components/ProjectCard.vue";
 import CreateProjectModal from "../components/CreateProjectModal.vue";
 import AppButton from "@/components/ui/AppButton.vue";
-import AppSpinner from "@/components/ui/AppSpinner.vue";
 import EmptyState from "@/components/feedback/EmptyState.vue";
+import SkeletonProjectCard from "@/components/feedback/SkeletonProjectCard.vue";
 
 const { projects, isLoading, isError } = useProjects();
 
@@ -32,8 +32,11 @@ const showCreateModal = ref(false);
     </div>
 
     <!-- Loading state -->
-    <div v-if="isLoading" class="flex items-center justify-center py-24">
-      <AppSpinner size="lg" />
+    <div
+      v-if="isLoading"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+    >
+      <SkeletonProjectCard v-for="i in 6" :key="i" />
     </div>
 
     <!-- Error state -->

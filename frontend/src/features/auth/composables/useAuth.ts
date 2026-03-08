@@ -6,6 +6,7 @@ import { authApi } from "@/api/modules/auth.api";
 import type { LoginPayload, RegisterPayload } from "@/types/auth.types";
 import type { AxiosError } from "axios";
 import type { ApiError } from "@/types/common.types";
+import { useToast } from "@/composables/useToast";
 
 /**
  * useAuth composable — owns all authentication actions.
@@ -22,6 +23,7 @@ import type { ApiError } from "@/types/common.types";
 export function useAuth() {
   const authStore = useAuthStore();
   const router = useRouter();
+  const toast = useToast();
   const queryClient = useQueryClient();
 
   // Local loading + error state — scoped to this composable instance
@@ -50,6 +52,7 @@ export function useAuth() {
     try {
       const { data } = await authApi.login(payload);
       authStore.setUser(data);
+      toast.success(`Welcome back, ${data.firstName}!`);
 
       // Redirect to the originally requested page if guard sent us here,
       // otherwise go to projects
@@ -69,6 +72,10 @@ export function useAuth() {
     try {
       const { data } = await authApi.register(payload);
       authStore.setUser(data);
+      toast.success(
+        `Account created!`,
+        `Welcome to Project Lume, ${data.firstName}.`,
+      );
       await router.push({ name: "projects" });
     } catch (error) {
       serverError.value = extractError(error);
@@ -80,6 +87,7 @@ export function useAuth() {
   async function logout() {
     try {
       await authApi.logout();
+      toast.success("Signed out successfully");
     } finally {
       authStore.clearUser();
       queryClient.clear();

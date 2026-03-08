@@ -2,40 +2,49 @@
 import { useUIStore } from "@/stores/ui.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { useAuth } from "@/features/auth/composables/useAuth";
-import { Menu, FolderKanban, LogOut } from "lucide-vue-next";
+import { Menu, FolderKanban, LogOut, Sun, Moon } from "lucide-vue-next";
 import AppButton from "@/components/ui/AppButton.vue";
 
 const uiStore = useUIStore();
 const authStore = useAuthStore();
-
 const { logout } = useAuth();
+
+function handleNavClick() {
+  // Close sidebar on mobile after navigating
+  if (window.innerWidth < 1024) {
+    uiStore.sidebarOpen = false;
+  }
+}
 </script>
 
 <template>
   <div class="min-h-screen flex bg-background">
+    <!-- Mobile backdrop -->
+    <Transition name="fade">
+      <div
+        v-if="uiStore.sidebarOpen"
+        class="fixed inset-0 bg-black/40 z-20 lg:hidden"
+        @click="uiStore.toggleSidebar()"
+      />
+    </Transition>
+
     <!-- ── Sidebar ── -->
     <aside
       :class="[
         'flex flex-col bg-sidebar border-r border-border transition-all duration-300 shrink-0',
-        uiStore.sidebarOpen ? 'w-60' : 'w-16',
+        'fixed lg:static inset-y-0 left-0 z-30',
+        uiStore.sidebarOpen ? 'w-60' : 'w-0 lg:w-16 overflow-hidden',
       ]"
     >
       <!-- Logo -->
       <div
         class="h-16 flex items-center px-4 border-b border-border shrink-0 gap-3"
       >
-        <!-- Icon mark — always visible -->
         <div
           class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
           style="background: linear-gradient(135deg, #4c6ef5 0%, #3451c7 100%)"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="58 48 84 92"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="16" height="16" viewBox="58 48 84 92" fill="none">
             <rect
               x="58"
               y="48"
@@ -77,7 +86,6 @@ const { logout } = useAuth();
             <circle cx="88" cy="58" r="5" fill="white" fill-opacity="0.9" />
           </svg>
         </div>
-
         <span
           v-if="uiStore.sidebarOpen"
           class="text-foreground font-bold text-base tracking-tight truncate"
@@ -89,7 +97,7 @@ const { logout } = useAuth();
 
       <!-- Navigation -->
       <nav class="flex-1 p-3 space-y-0.5">
-        <router-link to="/projects" class="nav-link">
+        <router-link to="/projects" class="nav-link" @click="handleNavClick">
           <FolderKanban class="w-4 h-4 shrink-0" />
           <span v-if="uiStore.sidebarOpen" class="truncate">Projects</span>
         </router-link>
@@ -97,7 +105,6 @@ const { logout } = useAuth();
 
       <!-- User + Logout -->
       <div class="p-3 border-t border-border">
-        <!-- Expanded: name + email -->
         <div
           v-if="uiStore.sidebarOpen"
           class="flex items-center gap-3 px-3 py-2 mb-2 rounded-md bg-muted"
@@ -120,7 +127,6 @@ const { logout } = useAuth();
           </div>
         </div>
 
-        <!-- Collapsed: avatar only -->
         <div v-else class="flex justify-center py-1 mb-2">
           <div
             class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold"
@@ -130,12 +136,7 @@ const { logout } = useAuth();
           </div>
         </div>
 
-        <AppButton
-          variant="danger"
-          size="sm"
-          :full-width="true"
-          @click="logout"
-        >
+        <AppButton variant="ghost" size="sm" :full-width="true" @click="logout">
           <LogOut class="w-3.5 h-3.5 shrink-0" />
           <span v-if="uiStore.sidebarOpen">Sign out</span>
         </AppButton>
@@ -152,7 +153,7 @@ const { logout } = useAuth();
           variant="ghost"
           size="icon"
           aria-label="Toggle sidebar"
-          @click="uiStore.toggleSidebar"
+          @click="uiStore.toggleSidebar()"
         >
           <Menu class="w-4 h-4" />
         </AppButton>
@@ -160,6 +161,19 @@ const { logout } = useAuth();
         <div class="flex-1 min-w-0">
           <slot name="topbar" />
         </div>
+
+        <!-- Dark mode toggle -->
+        <AppButton
+          variant="ghost"
+          size="icon"
+          :aria-label="
+            uiStore.isDark ? 'Switch to light mode' : 'Switch to dark mode'
+          "
+          @click="uiStore.toggleTheme()"
+        >
+          <Sun v-if="uiStore.isDark" class="w-4 h-4" />
+          <Moon v-else class="w-4 h-4" />
+        </AppButton>
       </header>
 
       <!-- Page content -->
@@ -169,3 +183,14 @@ const { logout } = useAuth();
     </div>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

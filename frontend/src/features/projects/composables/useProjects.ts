@@ -2,18 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { projectsApi } from "@/api/modules/projects.api";
 import { queryKeys } from "@/api/query-keys";
 import type { CreateProjectPayload } from "@/types/project.types";
+import { useToast } from "@/composables/useToast";
 
-/**
- * useProjects — server state for the projects list.
- *
- * Returns:
- *   projects     → reactive array of ProjectWithMeta
- *   isLoading    → true on first fetch
- *   isError      → true if fetch failed
- *   createProject → mutation function
- *   isCreating   → true while create is in flight
- */
 export function useProjects() {
+  const toast = useToast();
   const queryClient = useQueryClient();
 
   // ── Fetch all projects ──
@@ -31,19 +23,44 @@ export function useProjects() {
   });
 
   // ── Create project ──
-  const {
-    mutateAsync: createProject,
-    isPending: isCreating,
-    error: createError,
-  } = useMutation({
+  const { mutateAsync: createProject, isPending: isCreating } = useMutation({
     mutationFn: async (payload: CreateProjectPayload) => {
       const { data } = await projectsApi.create(payload);
       return data;
     },
-    onSuccess: () => {
-      // Invalidate the projects list so it refetches with the new project
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.projects.all() });
+      toast.success("Project created", `${data.name} is ready.`);
     },
+    onError: () => {
+      toast.error("Failed to create project", "Please try again.");
+    },
+  });
+
+  // ── Update project ──
+  const { mutateAsync: updateProject, isPending: isUpdating } = useMutation({
+    mutationFn: ({
+      projectId,
+      payload,
+    }: {
+      projectId: string;
+      payload: { name: string; description?: string };
+    }) => projectsApi.update(projectId, payload).then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all() });
+      toast.success("Project updated");
+    },
+    onError: () => toast.error("Failed to update project"),
+  });
+
+  // ── Archive project ──
+  const { mutateAsync: archiveProject, isPending: isArchiving } = useMutation({
+    mutationFn: (projectId: string) => projectsApi.archive(projectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all() });
+      toast.success("Project archived");
+    },
+    onError: () => toast.error("Failed to archive project"),
   });
 
   return {
@@ -53,6 +70,9 @@ export function useProjects() {
     error,
     createProject,
     isCreating,
-    createError,
+    updateProject,
+    isUpdating,
+    archiveProject,
+    isArchiving,
   };
 }

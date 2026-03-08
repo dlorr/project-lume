@@ -72,6 +72,13 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
     }
+
+    const status = error.response?.status;
+    if (status && status >= 500) {
+      const { useToast } = await import("@/composables/useToast");
+      const toast = useToast();
+      toast.error("Server error", "Something went wrong. Please try again.");
+    }
     return Promise.reject(error);
   },
 );
