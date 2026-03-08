@@ -7,6 +7,7 @@ import { queryKeys } from "@/api/query-keys";
 import type { ProjectWithMeta } from "@/types/project.types";
 import AppButton from "@/components/ui/AppButton.vue";
 import AppInput from "@/components/ui/AppInput.vue";
+import { ArrowLeft } from "lucide-vue-next";
 
 const route = useRoute();
 const router = useRouter();
@@ -49,9 +50,18 @@ async function handleArchive() {
 <template>
   <div class="max-w-xl">
     <!-- Header -->
-    <div class="mb-6">
-      <h1 class="page-title">Project settings</h1>
-      <p class="page-subtitle">Manage details for {{ project?.name }}</p>
+    <div class="flex items-center gap-3 mb-6">
+      <AppButton
+        variant="ghost"
+        size="icon"
+        @click="router.push({ name: 'board', params: { projectId } })"
+      >
+        <ArrowLeft class="w-4 h-4" />
+      </AppButton>
+      <div>
+        <h1 class="page-title">Project settings</h1>
+        <p class="page-subtitle">Manage details for {{ project?.name }}</p>
+      </div>
     </div>
 
     <!-- General -->
