@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useMembers } from "@/features/members/composables/useMembers";
 import { useAuthStore } from "@/stores/auth.store";
 import { getInitials } from "@/utils/ticket.utils";
@@ -8,8 +8,10 @@ import AppButton from "@/components/ui/AppButton.vue";
 import AppInput from "@/components/ui/AppInput.vue";
 import AppSpinner from "@/components/ui/AppSpinner.vue";
 import { UserPlus, Trash2 } from "lucide-vue-next";
+import { ArrowLeft } from "lucide-vue-next";
 
 const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
 
 const projectId = route.params.projectId as string;
@@ -44,12 +46,23 @@ const roleBadgeClass: Record<string, string> = {
 <template>
   <div class="max-w-2xl">
     <!-- Header -->
-    <div class="mb-6">
-      <h1 class="page-title">Members</h1>
-      <p class="page-subtitle">
-        {{ projectDetail?.members?.length ?? 0 }}
-        {{ (projectDetail?.members?.length ?? 0) === 1 ? "member" : "members" }}
-      </p>
+    <div class="flex items-center gap-3 mb-6">
+      <AppButton
+        variant="ghost"
+        size="icon"
+        @click="router.push({ name: 'board', params: { projectId } })"
+      >
+        <ArrowLeft class="w-4 h-4" />
+      </AppButton>
+      <div>
+        <h1 class="page-title">Members</h1>
+        <p class="page-subtitle">
+          {{ projectDetail?.members?.length ?? 0 }}
+          {{
+            (projectDetail?.members?.length ?? 0) === 1 ? "member" : "members"
+          }}
+        </p>
+      </div>
     </div>
 
     <!-- Invite form -->
