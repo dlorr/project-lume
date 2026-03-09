@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { useUIStore } from "@/stores/ui.store";
+import { Sun, Moon } from "lucide-vue-next";
+import AppButton from "@/components/ui/AppButton.vue";
+
+const uiStore = useUIStore();
+
 const appName = import.meta.env.VITE_APP_NAME || "Project Lume";
 const currentYear = new Date().getFullYear();
 </script>
@@ -11,6 +17,20 @@ const currentYear = new Date().getFullYear();
   <div
     class="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden"
   >
+    <!-- Theme toggle -->
+    <div class="absolute top-4 right-4 z-10">
+      <AppButton
+        variant="ghost"
+        size="icon"
+        :aria-label="
+          uiStore.isDark ? 'Switch to light mode' : 'Switch to dark mode'
+        "
+        @click="uiStore.toggleTheme()"
+      >
+        <Sun v-if="uiStore.isDark" class="w-4 h-4" />
+        <Moon v-else class="w-4 h-4" />
+      </AppButton>
+    </div>
     <!-- Background mesh gradient — gives depth without being distracting -->
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
       <!-- Top-left warm blob -->

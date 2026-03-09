@@ -17,6 +17,7 @@ import {
 } from "@/utils/ticket.utils";
 import type { Ticket, TicketType, TicketPriority } from "@/types/ticket.types";
 import type { Board } from "@/types/board.types";
+import AppConfirmModal from "@/components/ui/AppConfirmModal.vue";
 
 interface Props {
   projectId: string;
@@ -53,6 +54,8 @@ type EditableField =
   | null;
 const editingField = ref<EditableField>(null);
 const editValue = ref<string>("");
+
+const showDeleteConfirm = ref(false);
 
 function startEdit(field: EditableField, currentValue: string) {
   editingField.value = field;
@@ -141,9 +144,9 @@ function cancelEditComment() {
   editingCommentBody.value = "";
 }
 
-async function handleDelete() {
-  if (!confirm("Delete this ticket? This cannot be undone.")) return;
+async function handleDeleteConfirm() {
   await deleteTicket(props.ticket.id);
+  showDeleteConfirm.value = false;
   emit("close");
 }
 
@@ -639,10 +642,20 @@ const priorityOptions: { value: TicketPriority; label: string }[] = [
     </template>
 
     <template #footer>
-      <AppButton variant="danger" @click="handleDelete">
+      <AppButton variant="danger" @click="showDeleteConfirm = true">
         <Trash2 class="w-4 h-4" />
         Delete ticket
       </AppButton>
     </template>
   </AppModal>
+
+  <AppConfirmModal
+    v-if="showDeleteConfirm"
+    title="Delete ticket"
+    :description="`Are you sure you want to delete '${ticket.title}'? This cannot be undone.`"
+    confirm-label="Delete ticket"
+    :loading="false"
+    @confirm="handleDeleteConfirm"
+    @cancel="showDeleteConfirm = false"
+  />
 </template>
