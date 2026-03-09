@@ -185,16 +185,6 @@
   .divider {
     @apply h-px bg-border my-4;
   }
-
-  .badge {
-    @apply inline-flex items-center px-2 py-0.5
-           rounded-full text-[11px] font-semibold
-           tracking-wide uppercase;
-  }
-
-  .badge-primary {
-    @apply bg-primary/10 text-primary;
-  }
 }
 
 #app {

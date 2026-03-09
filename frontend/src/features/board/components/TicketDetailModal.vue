@@ -18,6 +18,7 @@ import {
 import type { Ticket, TicketType, TicketPriority } from "@/types/ticket.types";
 import type { Board } from "@/types/board.types";
 import AppConfirmModal from "@/components/ui/AppConfirmModal.vue";
+import AppBadge from "@/components/ui/AppBadge.vue";
 
 interface Props {
   projectId: string;
@@ -311,13 +312,13 @@ const priorityOptions: { value: TicketPriority; label: string }[] = [
 
           <!-- Priority -->
           <div class="group flex items-center gap-1">
-            <span
+            <AppBadge
               v-if="editingField !== 'priority'"
-              :class="['badge cursor-pointer', priority.bg, priority.color]"
+              :class="[priority.bg, priority.color, 'cursor-pointer']"
               @click="startEdit('priority', ticketDetail.priority)"
             >
               {{ priority.label }}
-            </span>
+            </AppBadge>
             <div v-else class="flex items-center gap-1">
               <select
                 v-model="editValue"

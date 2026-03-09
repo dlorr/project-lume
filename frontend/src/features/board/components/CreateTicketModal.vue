@@ -21,7 +21,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{ close: [] }>();
 
 const { createTicket, isCreating } = useTickets(props.projectId);
-const { members } = useMembers(props.projectId);
+const { projectDetail } = useMembers(props.projectId);
 
 const { handleSubmit, errors } = useForm<CreateTicketFormValues>({
   validationSchema: toTypedSchema(createTicketSchema),
@@ -151,7 +151,7 @@ const priorityOptions: { value: TicketPriority; label: string }[] = [
         >
           <option value="">Unassigned</option>
           <option
-            v-for="member in members"
+            v-for="member in projectDetail?.members"
             :key="member.user.id"
             :value="member.user.id"
           >
