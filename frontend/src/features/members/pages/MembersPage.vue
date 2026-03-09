@@ -9,6 +9,7 @@ import AppInput from "@/components/ui/AppInput.vue";
 import AppSpinner from "@/components/ui/AppSpinner.vue";
 import { UserPlus, Trash2 } from "lucide-vue-next";
 import { ArrowLeft } from "lucide-vue-next";
+import AppConfirmModal from "@/components/ui/AppConfirmModal.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -22,6 +23,8 @@ const { projectDetail, isLoading, inviteMember, isInviting, removeMember } =
 const inviteEmail = ref("");
 const inviteRole = ref<"ADMIN" | "MEMBER">("MEMBER");
 
+const removeTarget = ref<{ id: string; name: string } | null>(null);
+
 async function handleInvite() {
   if (!inviteEmail.value.trim()) return;
   await inviteMember({
@@ -31,9 +34,14 @@ async function handleInvite() {
   inviteEmail.value = "";
 }
 
-async function handleRemove(memberId: string, fullName: string) {
-  if (!confirm(`Remove ${fullName} from this project?`)) return;
-  await removeMember(memberId);
+function promptRemove(memberId: string, fullName: string) {
+  removeTarget.value = { id: memberId, name: fullName };
+}
+
+async function handleRemoveConfirm() {
+  if (!removeTarget.value) return;
+  await removeMember(removeTarget.value.id);
+  removeTarget.value = null;
 }
 
 const roleBadgeClass: Record<string, string> = {
@@ -157,8 +165,8 @@ const roleBadgeClass: Record<string, string> = {
             size="icon"
             class="w-7 h-7"
             @click="
-              handleRemove(
-                member.id,
+              promptRemove(
+                member.user.id,
                 `${member.user.firstName} ${member.user.lastName}`,
               )
             "
@@ -172,4 +180,12 @@ const roleBadgeClass: Record<string, string> = {
       </div>
     </div>
   </div>
+  <AppConfirmModal
+    v-if="removeTarget"
+    title="Remove member"
+    :description="`Remove ${removeTarget.name} from this project? They will lose access immediately.`"
+    confirm-label="Remove member"
+    @confirm="handleRemoveConfirm"
+    @cancel="removeTarget = null"
+  />
 </template>

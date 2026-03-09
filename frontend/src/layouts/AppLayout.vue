@@ -162,7 +162,7 @@ function handleNavClick() {
           <slot name="topbar" />
         </div>
 
-        <!-- Dark mode toggle -->
+        <!-- Theme toggle -->
         <AppButton
           variant="ghost"
           size="icon"

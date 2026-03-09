@@ -8,6 +8,7 @@ import type { ProjectWithMeta } from "@/types/project.types";
 import AppButton from "@/components/ui/AppButton.vue";
 import AppInput from "@/components/ui/AppInput.vue";
 import { ArrowLeft } from "lucide-vue-next";
+import AppConfirmModal from "@/components/ui/AppConfirmModal.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -26,6 +27,8 @@ const project = cached?.find((p) => p.id === projectId);
 const name = ref(project?.name ?? "");
 const description = ref(project?.description ?? "");
 
+const showArchiveConfirm = ref(false);
+
 async function handleSave() {
   if (!name.value.trim()) return;
   await updateProject({
@@ -37,12 +40,9 @@ async function handleSave() {
   });
 }
 
-async function handleArchive() {
-  if (
-    !confirm("Archive this project? It will be hidden from your projects list.")
-  )
-    return;
+async function handleArchiveConfirm() {
   await archiveProject(projectId);
+  showArchiveConfirm.value = false;
   router.push({ name: "projects" });
 }
 </script>
@@ -104,12 +104,22 @@ async function handleArchive() {
       </p>
       <AppButton
         variant="danger"
-        :loading="isArchiving"
         class="self-start"
-        @click="handleArchive"
+        @click="showArchiveConfirm = true"
       >
         Archive project
       </AppButton>
     </div>
   </div>
+
+  <!-- Archive confirmation modal -->
+  <AppConfirmModal
+    v-if="showArchiveConfirm"
+    title="Archive project"
+    :description="`Are you sure you want to archive '${project?.name}'? It will be hidden from your projects list. Tickets and board data are preserved.`"
+    confirm-label="Archive project"
+    :loading="isArchiving"
+    @confirm="handleArchiveConfirm"
+    @cancel="showArchiveConfirm = false"
+  />
 </template>
