@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { MessageSquare, User } from "lucide-vue-next";
 import type { Ticket } from "@/types/ticket.types";
 import { priorityConfig, typeConfig, getInitials } from "@/utils/ticket.utils";
+import AppBadge from "@/components/ui/AppBadge.vue";
 
 interface Props {
   ticket: Ticket;
@@ -29,9 +30,9 @@ const type = computed(() => typeConfig[props.ticket.type]);
       </span>
 
       <!-- Priority badge -->
-      <span :class="['badge', priority.bg, priority.color]">
+      <AppBadge :class="[priority.bg, priority.color]">
         {{ priority.label }}
-      </span>
+      </AppBadge>
     </div>
 
     <!-- Title -->

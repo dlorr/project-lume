@@ -8,6 +8,7 @@ import KanbanBoard from "../components/KanbanBoard.vue";
 import AppButton from "@/components/ui/AppButton.vue";
 import SkeletonBoard from "@/components/feedback/SkeletonBoard.vue";
 import { Settings, Users } from "lucide-vue-next";
+import ErrorState from "@/components/feedback/ErrorState.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -72,12 +73,7 @@ const project = computed(() => projects.value?.find((p) => p.id === projectId));
     <SkeletonBoard v-if="isLoading" />
 
     <!-- Error -->
-    <div v-else-if="isError" class="card p-6 text-center">
-      <p class="text-sm text-red-500 font-medium">Failed to load board</p>
-      <p class="text-xs text-muted-foreground mt-1">
-        Check your connection and try again
-      </p>
-    </div>
+    <ErrorState v-else-if="isError" title="Failed to load board" />
 
     <!-- Board -->
     <KanbanBoard

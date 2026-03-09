@@ -2,6 +2,8 @@
 import { useRouter } from "vue-router";
 import { FolderKanban, Users, Ticket, ChevronRight } from "lucide-vue-next";
 import type { ProjectWithMeta } from "@/types/project.types";
+import AppBadge from "@/components/ui/AppBadge.vue";
+import { roleBadgeVariant } from "@/utils/ticket.utils";
 
 interface Props {
   project: ProjectWithMeta;
@@ -16,13 +18,6 @@ function goToBoard() {
     params: { projectId: props.project.id },
   });
 }
-
-// Role badge color
-const roleBadgeClass: Record<string, string> = {
-  OWNER: "bg-primary/10 text-primary",
-  ADMIN: "bg-violet-500/10 text-violet-600",
-  MEMBER: "bg-muted text-muted-foreground",
-};
 </script>
 
 <template>
@@ -54,14 +49,11 @@ const roleBadgeClass: Record<string, string> = {
 
       <!-- Role badge + arrow -->
       <div class="flex items-center gap-2 shrink-0">
-        <span
-          :class="[
-            'badge',
-            roleBadgeClass[project.myRole] ?? roleBadgeClass.MEMBER,
-          ]"
+        <AppBadge
+          :variant="roleBadgeVariant[project.myRole] ?? roleBadgeVariant.MEMBER"
         >
           {{ project.myRole.toLowerCase() }}
-        </span>
+        </AppBadge>
         <ChevronRight
           class="w-4 h-4 text-muted-foreground/40 group-hover:text-primary transition-colors duration-150"
         />

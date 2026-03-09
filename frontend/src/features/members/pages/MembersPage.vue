@@ -3,13 +3,14 @@ import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useMembers } from "@/features/members/composables/useMembers";
 import { useAuthStore } from "@/stores/auth.store";
-import { getInitials } from "@/utils/ticket.utils";
+import { getInitials, roleBadgeVariant } from "@/utils/ticket.utils";
 import AppButton from "@/components/ui/AppButton.vue";
 import AppInput from "@/components/ui/AppInput.vue";
 import AppSpinner from "@/components/ui/AppSpinner.vue";
 import { UserPlus, Trash2 } from "lucide-vue-next";
 import { ArrowLeft } from "lucide-vue-next";
 import AppConfirmModal from "@/components/ui/AppConfirmModal.vue";
+import AppBadge from "@/components/ui/AppBadge.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -43,12 +44,6 @@ async function handleRemoveConfirm() {
   await removeMember(removeTarget.value.id);
   removeTarget.value = null;
 }
-
-const roleBadgeClass: Record<string, string> = {
-  OWNER: "bg-primary/10 text-primary",
-  ADMIN: "bg-violet-500/10 text-violet-600",
-  MEMBER: "bg-muted text-muted-foreground",
-};
 </script>
 
 <template>
@@ -152,9 +147,9 @@ const roleBadgeClass: Record<string, string> = {
 
         <!-- Role + actions -->
         <div class="flex items-center gap-2 shrink-0">
-          <span :class="['badge', roleBadgeClass[member.role]]">
+          <AppBadge :variant="roleBadgeVariant[member.role]">
             {{ member.role.toLowerCase() }}
-          </span>
+          </AppBadge>
 
           <!-- Can't remove yourself or the owner -->
           <AppButton

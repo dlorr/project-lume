@@ -30,6 +30,15 @@ export const typeConfig: Record<TicketType, { label: string; color: string }> =
     EPIC: { label: "Epic", color: "text-orange-500" },
   };
 
+export const roleBadgeVariant: Record<
+  string,
+  "primary" | "success" | "warning" | "danger" | "default"
+> = {
+  OWNER: "primary",
+  ADMIN: "warning",
+  MEMBER: "default",
+};
+
 export function getInitials(firstName: string, lastName: string): string {
   return `${firstName[0]}${lastName[0]}`.toUpperCase();
 }

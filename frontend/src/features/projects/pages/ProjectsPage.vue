@@ -7,6 +7,7 @@ import CreateProjectModal from "../components/CreateProjectModal.vue";
 import AppButton from "@/components/ui/AppButton.vue";
 import EmptyState from "@/components/feedback/EmptyState.vue";
 import SkeletonProjectCard from "@/components/feedback/SkeletonProjectCard.vue";
+import ErrorState from "@/components/feedback/ErrorState.vue";
 
 const { projects, isLoading, isError } = useProjects();
 
@@ -40,14 +41,7 @@ const showCreateModal = ref(false);
     </div>
 
     <!-- Error state -->
-    <div v-else-if="isError" class="card p-6 text-center">
-      <p class="text-sm text-red-500 font-medium mb-1">
-        Failed to load projects
-      </p>
-      <p class="text-xs text-muted-foreground">
-        Check your connection and try again
-      </p>
-    </div>
+    <ErrorState v-else-if="isError" title="Failed to load projects" />
 
     <!-- Empty state -->
     <EmptyState
