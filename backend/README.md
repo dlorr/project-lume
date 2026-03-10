@@ -137,7 +137,7 @@ cp .env.example .env
 | `JWT_REFRESH_SECRET`     | Secret for signing refresh tokens (min 32 chars) | `your-other-secret`                                |
 | `JWT_REFRESH_EXPIRES_IN` | Refresh token lifetime                           | `7d`                                               |
 | `BCRYPT_ROUNDS`          | bcrypt cost factor                               | `12`                                               |
-| `APP_ORIGIN`             | Frontend origin for CORS (production only)       | `https://yourapp.com`                              |
+| `APP_ORIGIN`             | Frontend origin for CORS                         | `https://yourapp.com`                              |
 
 > **Never commit `.env` to version control.** Only `.env.example` (with no real values) should be committed.
 

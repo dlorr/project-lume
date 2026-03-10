@@ -1,0 +1,75 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import { Plus } from "lucide-vue-next";
+import { useProjects } from "../composables/useProjects";
+import ProjectCard from "../components/ProjectCard.vue";
+import CreateProjectModal from "../components/CreateProjectModal.vue";
+import AppButton from "@/components/ui/AppButton.vue";
+import EmptyState from "@/components/feedback/EmptyState.vue";
+import SkeletonProjectCard from "@/components/feedback/SkeletonProjectCard.vue";
+import ErrorState from "@/components/feedback/ErrorState.vue";
+
+const { projects, isLoading, isError } = useProjects();
+
+const showCreateModal = ref(false);
+</script>
+
+<template>
+  <div>
+    <!-- Page header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="page-title">Projects</h1>
+        <p class="page-subtitle">
+          {{ projects?.length ?? 0 }}
+          {{ (projects?.length ?? 0) === 1 ? "project" : "projects" }}
+        </p>
+      </div>
+
+      <AppButton variant="primary" @click="showCreateModal = true">
+        <Plus class="w-4 h-4" />
+        New project
+      </AppButton>
+    </div>
+
+    <!-- Loading state -->
+    <div
+      v-if="isLoading"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+    >
+      <SkeletonProjectCard v-for="i in 6" :key="i" />
+    </div>
+
+    <!-- Error state -->
+    <ErrorState v-else-if="isError" title="Failed to load projects" />
+
+    <!-- Empty state -->
+    <EmptyState
+      v-else-if="!projects?.length"
+      title="No projects yet"
+      description="Create your first project to start organizing your work with a Kanban board."
+    >
+      <template #action>
+        <AppButton variant="primary" @click="showCreateModal = true">
+          <Plus class="w-4 h-4" />
+          Create your first project
+        </AppButton>
+      </template>
+    </EmptyState>
+
+    <!-- Project grid -->
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <ProjectCard
+        v-for="project in projects"
+        :key="project.id"
+        :project="project"
+      />
+    </div>
+
+    <!-- Create modal -->
+    <CreateProjectModal
+      v-if="showCreateModal"
+      @close="showCreateModal = false"
+    />
+  </div>
+</template>
