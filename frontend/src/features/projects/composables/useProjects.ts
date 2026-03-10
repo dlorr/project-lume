@@ -8,7 +8,6 @@ export function useProjects() {
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  // ── Fetch all projects ──
   const {
     data: projects,
     isLoading,
@@ -22,7 +21,6 @@ export function useProjects() {
     },
   });
 
-  // ── Create project ──
   const { mutateAsync: createProject, isPending: isCreating } = useMutation({
     mutationFn: async (payload: CreateProjectPayload) => {
       const { data } = await projectsApi.create(payload);
@@ -37,7 +35,6 @@ export function useProjects() {
     },
   });
 
-  // ── Update project ──
   const { mutateAsync: updateProject, isPending: isUpdating } = useMutation({
     mutationFn: ({
       projectId,
@@ -53,7 +50,6 @@ export function useProjects() {
     onError: () => toast.error("Failed to update project"),
   });
 
-  // ── Archive project ──
   const { mutateAsync: archiveProject, isPending: isArchiving } = useMutation({
     mutationFn: (projectId: string) => projectsApi.archive(projectId),
     onSuccess: () => {

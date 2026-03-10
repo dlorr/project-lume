@@ -25,14 +25,6 @@ const { value: name } = useField<string>("name");
 const { value: key } = useField<string>("key");
 const { value: description } = useField<string>("description");
 
-/**
- * Auto-generate the project key from the name.
- * Takes first letter of each word, uppercased, max 6 chars.
- * User can still override it manually.
- *
- * "My Awesome Project" → "MAP"
- * "Frontend Redesign"  → "FR"
- */
 watch(name, (newName) => {
   if (!newName) return;
   const generated = newName

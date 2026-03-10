@@ -1,13 +1,5 @@
 import * as yup from "yup";
 
-/**
- * Schemas mirror backend DTO validation rules exactly.
- * If backend changes (e.g. min password length), update here too.
- *
- * Keeping both in sync means the user gets frontend feedback
- * that matches what the backend would reject — no surprises.
- */
-
 export const loginSchema = yup.object({
   email: yup
     .string()

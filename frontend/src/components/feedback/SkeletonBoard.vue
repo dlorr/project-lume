@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// Shows 4 skeleton columns matching typical board layout
-const columns = [3, 5, 2, 4]; // ticket count per column
+const columns = [3, 5, 2, 4];
 </script>
 
 <template>

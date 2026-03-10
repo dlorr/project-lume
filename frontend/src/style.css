@@ -180,11 +180,6 @@
   .page-subtitle {
     @apply text-sm text-muted-foreground mt-1;
   }
-
-  /* ── Misc ── */
-  .divider {
-    @apply h-px bg-border my-4;
-  }
 }
 
 #app {

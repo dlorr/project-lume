@@ -513,7 +513,7 @@ const priorityOptions: { value: TicketPriority; label: string }[] = [
           </div>
         </div>
 
-        <div class="divider" />
+        <div class="h-px bg-border my-4" />
 
         <!-- ── Comments ── -->
         <div>

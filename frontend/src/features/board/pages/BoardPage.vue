@@ -18,8 +18,6 @@ const projectId = route.params.projectId as string;
 const { board, isLoading, isError } = useBoard(projectId);
 const { projects } = useProjects();
 
-// Get project info from already-cached projects list
-// No extra API call needed — Vue Query already has this data
 const project = computed(() => projects.value?.find((p) => p.id === projectId));
 </script>
 

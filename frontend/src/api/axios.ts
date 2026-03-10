@@ -1,16 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import type { ApiError } from "@/types/common.types";
 
-/**
- * The central Axios instance for the entire application.
- *
- * All API calls go through this instance — never import axios directly
- * in components or stores. This gives us one place to:
- *   - Set the base URL
- *   - Configure credentials (cookies)
- *   - Add request/response interceptors
- *   - Handle token refresh (Phase 2)
- */
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
@@ -19,28 +9,6 @@ const apiClient = axios.create({
   },
 });
 
-/**
- * Token refresh interceptor.
- *
- * Flow:
- *   1. Any request returns 401
- *   2. Interceptor catches it
- *   3. If not already retrying → call /auth/refresh
- *   4. If refresh succeeds → retry the original request
- *   5. If refresh fails → clear local auth state → redirect to login
- *
- * _retry flag prevents infinite loops:
- *   Without it, the /auth/refresh call itself returning 401
- *   would trigger another refresh attempt → infinite loop.
- *
- * Why not use a queue for concurrent requests?
- *   For an MVP with short-lived access tokens (15min), the chance
- *   of multiple simultaneous requests all hitting 401 at the same
- *   moment is very low. A queue adds significant complexity.
- *   We can add it later if needed.
- */
-
-// Extend AxiosRequestConfig to add our retry flag
 interface RetryableRequest extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
@@ -60,11 +28,8 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Attempt to get new tokens using the refresh cookie
         await apiClient.post("/auth/refresh");
 
-        // Refresh succeeded — retry the original request
-        // New access_token cookie is now set by the browser automatically
         return apiClient(originalRequest);
       } catch (error) {
         localStorage.removeItem("auth_user");

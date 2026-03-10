@@ -2,19 +2,6 @@
 import { computed } from "vue";
 import { Loader2 } from "lucide-vue-next";
 
-/**
- * AppButton — the single button component for the entire app.
- *
- * Variants map to the visual style.
- * Size prop controls padding + text size.
- * Loading state shows a spinner and disables interaction.
- *
- * Usage:
- *   <AppButton variant="primary" :loading="isLoading" @click="submit">
- *     Save
- *   </AppButton>
- */
-
 interface Props {
   variant?: "primary" | "ghost" | "danger" | "outline";
   size?: "sm" | "md" | "icon";
@@ -33,10 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
   fullWidth: false,
 });
 
-// Build class list based on props
-// Keeping all variant/size logic here — not in style.css
 const classes = computed(() => [
-  // Base — always applied
   "inline-flex items-center justify-center gap-2",
   "font-medium border transition-all duration-150",
   "cursor-pointer whitespace-nowrap",
@@ -45,12 +29,10 @@ const classes = computed(() => [
   "focus-visible:ring-ring focus-visible:ring-offset-2",
   "focus-visible:ring-offset-background",
 
-  // Size
   props.size === "sm" && "px-3 py-1.5 text-xs rounded",
   props.size === "md" && "px-4 py-2 text-sm rounded-md",
   props.size === "icon" && "p-2 rounded-md text-sm",
 
-  // Variant
   props.variant === "primary" && [
     "bg-primary text-primary-foreground border-primary",
     "hover:bg-primary-hover hover:border-primary-hover",
@@ -68,7 +50,6 @@ const classes = computed(() => [
     "hover:bg-muted",
   ],
 
-  // Width
   props.fullWidth && "w-full",
 ]);
 </script>
