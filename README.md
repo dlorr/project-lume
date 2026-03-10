@@ -78,33 +78,50 @@ git clone <repo-url>
 cd project-lume
 ```
 
-### 3. Backend Setup
+### 3. Install dependencies
+
+```bash
+npm run install:all
+```
+
+### 4. Configure environment
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+# Edit both .env files with your values
+```
+
+### 5. Set up database
 
 ```bash
 cd backend
-npm install
-cp .env.example .env
-# Edit .env — add your DATABASE_URL and JWT secrets
 npx prisma migrate dev
-npm run start:dev
+cd ..
 ```
 
-### 4. Frontend Setup
+### 6. Run
 
 ```bash
-cd frontend
-npm install
-cp .env.example .env
-# Edit .env — set VITE_API_URL=http://localhost:8006/api/v1`
 npm run dev
 ```
-
-### 5. Open
 
 - Frontend: `http://localhost:3006`
 - Backend API: `http://localhost:8006/api/v1`
 
 See `backend/README.md` and `frontend/README.md` for detailed setup instructions and environment variable references.
+
+---
+
+## Scripts (run from root)
+
+| Script                 | Description                              |
+| ---------------------- | ---------------------------------------- |
+| `npm run dev`          | Start backend + frontend simultaneously  |
+| `npm run dev:backend`  | Start backend only                       |
+| `npm run dev:frontend` | Start frontend only                      |
+| `npm run build`        | Build both for production                |
+| `npm run install:all`  | Install dependencies for both workspaces |
 
 ---
 
