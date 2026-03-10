@@ -10,10 +10,6 @@ const currentYear = new Date().getFullYear();
 </script>
 
 <template>
-  <!--
-    Single centered card on a textured background.
-    No left/right panels — clean, focused, distinct.
-  -->
   <div
     class="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden"
   >
@@ -31,19 +27,19 @@ const currentYear = new Date().getFullYear();
         <Moon v-else class="w-4 h-4" />
       </AppButton>
     </div>
-    <!-- Background mesh gradient — gives depth without being distracting -->
+    <!-- Background gradients -->
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-      <!-- Top-left warm blob -->
+      <!-- Top-left -->
       <div
         class="absolute -top-32 -left-32 w-96 h-96 rounded-full opacity-[0.07]"
         style="background: radial-gradient(circle, #4c6ef5 0%, transparent 70%)"
       />
-      <!-- Bottom-right cool blob -->
+      <!-- Bottom-right -->
       <div
         class="absolute -bottom-32 -right-32 w-125 h-125 rounded-full opacity-[0.05]"
         style="background: radial-gradient(circle, #3b5bdb 0%, transparent 70%)"
       />
-      <!-- Center subtle dot grid -->
+      <!-- Center -->
       <div
         class="absolute inset-0 opacity-[0.025]"
         style="
@@ -64,7 +60,6 @@ const currentYear = new Date().getFullYear();
         class="w-12 h-12 rounded-2xl mb-3 flex items-center justify-center shadow-lg"
         style="background: linear-gradient(135deg, #4c6ef5 0%, #3451c7 100%)"
       >
-        <!-- Inline SVG — the L with rays, scaled down -->
         <svg
           width="28"
           height="28"

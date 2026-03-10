@@ -16,7 +16,6 @@ export function useComments(projectId: string, ticketId: string) {
     });
   }
 
-  // ── Create comment ──
   const { mutateAsync: addComment, isPending: isAdding } = useMutation({
     mutationFn: (body: string) =>
       commentsApi.create(projectId, ticketId, body).then((r) => r.data),
@@ -27,7 +26,6 @@ export function useComments(projectId: string, ticketId: string) {
     onError: () => toast.error("Failed to add comment"),
   });
 
-  // ── Update comment ──
   const { mutateAsync: editComment } = useMutation({
     mutationFn: ({ commentId, body }: { commentId: string; body: string }) =>
       commentsApi
@@ -40,7 +38,6 @@ export function useComments(projectId: string, ticketId: string) {
     onError: () => toast.error("Failed to update comment"),
   });
 
-  // ── Remove comment ──
   const { mutateAsync: removeComment } = useMutation({
     mutationFn: (commentId: string) =>
       commentsApi.remove(projectId, ticketId, commentId),

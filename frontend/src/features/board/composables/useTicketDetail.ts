@@ -15,7 +15,6 @@ export function useTicketDetail(
       const { data } = await ticketsApi.getOne(projectId, ticketId.value!);
       return data;
     },
-    // Only run query when a ticketId is selected
     enabled: () => !!ticketId.value,
   });
 }

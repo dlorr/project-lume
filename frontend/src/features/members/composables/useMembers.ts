@@ -7,7 +7,6 @@ export function useMembers(projectId: string) {
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  // ── Fetch project detail (includes members array) ──
   const { data: projectDetail, isLoading } = useQuery({
     queryKey: queryKeys.projects.detail(projectId),
     queryFn: async () => {
@@ -17,7 +16,6 @@ export function useMembers(projectId: string) {
     staleTime: 1000 * 60 * 5,
   });
 
-  // ── Invite member ──
   const { mutateAsync: inviteMember, isPending: isInviting } = useMutation({
     mutationFn: (payload: { email: string; role: "ADMIN" | "MEMBER" }) =>
       projectsApi.inviteMember(projectId, payload),

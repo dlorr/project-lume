@@ -1,18 +1,12 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-/**
- * UI store — owns global UI state.
- * Things that don't belong to any specific feature
- * but need to be shared across the layout.
- */
 export const useUIStore = defineStore("ui", () => {
   const sidebarOpen = ref(true);
   const activeModal = ref<string | null>(null);
   const isDark = ref(false);
 
   function initTheme() {
-    // Read saved preference or system default
     const saved = localStorage.getItem("theme");
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)",

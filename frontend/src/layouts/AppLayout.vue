@@ -7,10 +7,10 @@ import AppButton from "@/components/ui/AppButton.vue";
 
 const uiStore = useUIStore();
 const authStore = useAuthStore();
+
 const { logout } = useAuth();
 
 function handleNavClick() {
-  // Close sidebar on mobile after navigating
   if (window.innerWidth < 1024) {
     uiStore.sidebarOpen = false;
   }
@@ -28,7 +28,7 @@ function handleNavClick() {
       />
     </Transition>
 
-    <!-- ── Sidebar ── -->
+    <!-- Sidebar -->
     <aside
       :class="[
         'flex flex-col bg-sidebar border-r border-border transition-all duration-300 shrink-0',
@@ -143,7 +143,7 @@ function handleNavClick() {
       </div>
     </aside>
 
-    <!-- ── Main area ── -->
+    <!-- Main area -->
     <div class="flex-1 flex flex-col min-w-0">
       <!-- Topbar -->
       <header

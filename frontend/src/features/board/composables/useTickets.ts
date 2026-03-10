@@ -12,13 +12,10 @@ export function useTickets(projectId: string) {
   const queryClient = useQueryClient();
   const boardKey = queryKeys.board.detail(projectId);
 
-  // ── Create ticket ──
   const { mutateAsync: createTicket, isPending: isCreating } = useMutation({
     mutationFn: (payload: CreateTicketPayload) =>
       ticketsApi.create(projectId, payload).then((r) => r.data),
-
     onSuccess: () => {
-      // Refetch board so new ticket appears in correct column
       queryClient.invalidateQueries({ queryKey: boardKey });
       toast.success("Ticket created");
     },
@@ -45,7 +42,6 @@ export function useTickets(projectId: string) {
     onError: () => toast.error("Failed to move ticket"),
   });
 
-  // ── Update ticket ──
   const { mutateAsync: updateTicket, isPending: isUpdating } = useMutation({
     mutationFn: ({
       ticketId,
@@ -57,7 +53,6 @@ export function useTickets(projectId: string) {
         description?: string | null;
       };
     }) => ticketsApi.update(projectId, ticketId, payload).then((r) => r.data),
-
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: boardKey });
       queryClient.invalidateQueries({
@@ -68,10 +63,8 @@ export function useTickets(projectId: string) {
     onError: () => toast.error("Failed to update ticket"),
   });
 
-  // ── Delete ticket ──
   const { mutateAsync: deleteTicket } = useMutation({
     mutationFn: (ticketId: string) => ticketsApi.remove(projectId, ticketId),
-
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: boardKey });
     },

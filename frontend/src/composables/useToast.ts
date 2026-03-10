@@ -10,7 +10,6 @@ export interface Toast {
   duration?: number;
 }
 
-// Module-level state — shared across all composable calls
 const toasts = ref<Toast[]>([]);
 
 export function useToast() {
@@ -29,7 +28,6 @@ export function useToast() {
     toasts.value = toasts.value.filter((t) => t.id !== id);
   }
 
-  // Convenience methods
   const success = (title: string, message?: string) =>
     add({ type: "success", title, message });
 

@@ -1,24 +1,4 @@
 <script setup lang="ts">
-/**
- * AppInput — wraps a native <input> with:
- *   - Label rendering
- *   - Error message display
- *   - vee-validate integration via v-model
- *   - Consistent styling using Tailwind utilities
- *
- * Usage with vee-validate:
- *   <AppInput
- *     v-model="email"
- *     label="Email"
- *     type="email"
- *     placeholder="you@example.com"
- *     :error="errors.email"
- *   />
- *
- * Usage standalone:
- *   <AppInput v-model="search" placeholder="Search..." />
- */
-
 interface Props {
   modelValue?: string;
   label?: string;

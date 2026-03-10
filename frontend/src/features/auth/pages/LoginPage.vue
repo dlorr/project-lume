@@ -8,18 +8,10 @@ import AppButton from "@/components/ui/AppButton.vue";
 
 const { isLoading, serverError, login } = useAuth();
 
-/**
- * useForm from vee-validate:
- *   - validates against loginSchema on submit
- *   - tracks field errors, touched, dirty state
- *   - handleSubmit only calls our callback if validation passes
- */
 const { handleSubmit, errors } = useForm<LoginFormValues>({
   validationSchema: toTypedSchema(loginSchema),
 });
 
-// useField binds each field to the form context
-// value is the reactive field value, handleChange updates it
 const { value: email } = useField<string>("email");
 const { value: password } = useField<string>("password");
 
